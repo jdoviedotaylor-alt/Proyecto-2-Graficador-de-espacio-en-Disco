@@ -9,7 +9,14 @@ tamañoCarpetas = []
 def obtenerTamaño(rutaArchivo):
     """Esta es una funcion que va a recibir una ruta de un archivo y va a devolver el tamaño del archivo
        en la unidad de medida mas adecuada
+       Entradas: Una ruta de un archivo o carpeta
+       Salidas: Tamaño en la unidad de medida mas adecuada
+       Restricciones: rutaArchivo debe ser una ruta válida
     """
+    if type(rutaArchivo) != str:
+        raise Exception("La ruta debe ser un string")
+    if not os.path.exists(rutaArchivo):
+        raise Exception("Debe ingresar una ruta que exista")
     tamaño = float(os.path.getsize(rutaArchivo))
     if tamaño < 1024:
         return f"{tamaño:.2f} B"
@@ -28,6 +35,13 @@ def obtenerTamaño(rutaArchivo):
     
 
 def informacionCarpeta(ruta):
+    """ 
+    Esta es la funcion principal de una función recursiva, recibe una ruta de una carpeta y llama
+    la función auxiliar
+    Entradas: Una ruta de una carpeta
+    Salidas: Diccionario que devuelve la función auxiliar
+    Restricciones: ruta debe ser una ruta válda    
+    """
     if type(ruta) != str:
         raise Exception("La ruta debe ser un string")
     if not os.path.exists(ruta):
@@ -37,6 +51,13 @@ def informacionCarpeta(ruta):
     return  informacionCarpetaAux(ruta)
 
 def informacionCarpetaAux(ruta):
+    """ 
+    Esta es la funcion auxiliar de una función recursiva, recibe una ruta de una carpeta y devuelve
+    un diccionario con la información de la carpeta
+    Entradas: Una ruta de una carpeta
+    Salidas: Diccionario con la información de la carpeta
+    Restricciones: ruta debe ser una ruta válda (se chequea en la función principal)   
+    """
     global archivos, tamañoArchivos, carpetas, tamañoCarpetas
     nombre = os.path.basename(ruta)
     tamaño = os.path.getsize(ruta)
@@ -44,28 +65,50 @@ def informacionCarpetaAux(ruta):
     if os.path.isfile(ruta):
         archivos.append(ruta)
         tamañoArchivos.append(tamaño)
-        return {"Nombre":nombre, "Tamaño": tamaño, "Ruta": ruta, "Hijos":hijos}
+        return {"nombre":nombre, "tamaño": tamaño, "ruta": ruta, "hijos":hijos}
     elementos = os.listdir(ruta)
     carpetas.append(ruta)
     tamañoCarpetas.append(len(elementos))
+    tamaño = 0
     for elemento in elementos:
         rutaElemento = os.path.join(ruta, elemento)
         infoElemento = informacionCarpetaAux(rutaElemento)
         hijos.append(infoElemento)
-    return {"Nombre":nombre, "Tamaño": tamaño, "Ruta": ruta, "Hijos":hijos}
+        tamaño += infoElemento["tamaño"]
+    return {"nombre":nombre, "tamaño": tamaño, "ruta": ruta, "hijos":hijos}
 
-def topTamañoArchivos(archivos):
+def topTamañoArchivos(listaTamañoArchivos):
+    """ 
+    Esta funcion retorna una lista con los 10 elementos mas grandes de una lista
+    Entradas: Una lista con valores numéricos
+    Salidas: Los 10 elementos mas grandes ordenados de mayor a menor
+    Restricciones: Tiene que ser una lista numérica
+    """
+    if type(listaTamañoArchivos) != list:
+        raise Exception("Debe ingresar una lista.")
+    if not all(type(x) in (int, float) for x in listaTamañoArchivos):
+        raise Exception("Debe ingresar una lista numérica.")
     listaArchivos = []
-    tamañoArchivosOrdenado = archivos.copy()
+    tamañoArchivosOrdenado = listaTamañoArchivos.copy()
     contador = 0
     while contador < 10 and tamañoArchivosOrdenado != []:
         listaArchivos.append(tamañoArchivosOrdenado.pop(tamañoArchivosOrdenado.index(max(tamañoArchivosOrdenado))))
         contador += 1
     return listaArchivos
 
-def topTamañoCarpetas(carpetas):
+def topTamañoCarpetas(listaTamañoCarpetas):
+    """ 
+    Esta funcion retorna una lista con los 10 elementos mas grandes de una lista
+    Entradas: Una lista con valores numéricos
+    Salidas: Los 10 elementos mas grandes ordenados de mayor a menor
+    Restricciones: Tiene que ser una lista numérica
+    """
+    if type(listaTamañoCarpetas) != list:
+        raise Exception("Debe ingresar una lista.")
+    if not all(type(x) in (int, float) for x in listaTamañoCarpetas):
+        raise Exception("Debe ingresar una lista numérica.")
     listaCarpetas = []
-    tamañoCarpetasOrdenado = carpetas.copy()
+    tamañoCarpetasOrdenado = listaTamañoCarpetas.copy()
     contador = 0
     while contador < 10 and tamañoCarpetasOrdenado != []:
         listaCarpetas.append(tamañoCarpetasOrdenado.pop(tamañoCarpetasOrdenado.index(max(tamañoCarpetasOrdenado))))
@@ -73,12 +116,32 @@ def topTamañoCarpetas(carpetas):
     return listaCarpetas
 
 def topArchivos(listaArchivos):
+    """
+    Esta funcion retorna un diccionario con los 10 archivos de mayor tamaño y su tamaño legible
+    Entradas: Una lista con los 10 tamaños de archivos mas grandes en bytes
+    Salidas: Un diccionario con la ruta del archivo como llave y su tamaño legible como valor
+    Restricciones: Tiene que ser una lista numérica
+    """
+    if type(listaArchivos) != list:
+        raise Exception("Debe ingresar una lista.")
+    if not all(type(x) in (int, float) for x in listaArchivos):
+        raise Exception("Debe ingresar una lista numérica.")
     archivosFinal = {}
     for elemento in listaArchivos:
         archivosFinal[archivos[tamañoArchivos.index(elemento)]] = obtenerTamaño(archivos[tamañoArchivos.index(elemento)])
     return archivosFinal
 
 def topCarpetas(listaCarpetas):
+    """
+    Esta funcion retorna un diccionario con las 10 carpetas con mayor cantidad de elementos
+    Entradas: Una lista con los 10 mayores conteos de elementos de carpetas
+    Salidas: Un diccionario con la ruta de la carpeta como llave y su cantidad de elementos como valor
+    Restricciones: Tiene que ser una lista numérica
+    """
+    if type(listaCarpetas) != list:
+        raise Exception("Debe ingresar una lista.")
+    if not all(type(x) in (int, float) for x in listaCarpetas):
+        raise Exception("Debe ingresar una lista numérica.")
     carpetasFinal = {}
     for elemento in listaCarpetas:
         carpetasFinal[carpetas[tamañoCarpetas.index(elemento)]] = elemento
