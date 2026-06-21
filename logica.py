@@ -1,7 +1,9 @@
 import os
 
 archivos = []
+tamañoArchivos = []
 carpetas = []
+tamañoCarpetas = []
 
 
 def obtenerTamaño(rutaArchivo):
@@ -35,17 +37,49 @@ def informacionCarpeta(ruta):
     return  informacionCarpetaAux(ruta)
 
 def informacionCarpetaAux(ruta):
-    global archivos, carpetas
+    global archivos, tamañoArchivos, carpetas, tamañoCarpetas
     nombre = os.path.basename(ruta)
     tamaño = os.path.getsize(ruta)
     hijos = []
     if os.path.isfile(ruta):
-        archivos.append({"Nombre": nombre, "Tamaño": tamaño})
+        archivos.append(ruta)
+        tamañoArchivos.append(tamaño)
         return {"Nombre":nombre, "Tamaño": tamaño, "Ruta": ruta, "Hijos":hijos}
-    carpetas.append({"Nombre": nombre, "Tamaño": len})
     elementos = os.listdir(ruta)
+    carpetas.append(ruta)
+    tamañoCarpetas.append(len(elementos))
     for elemento in elementos:
         rutaElemento = os.path.join(ruta, elemento)
         infoElemento = informacionCarpetaAux(rutaElemento)
         hijos.append(infoElemento)
     return {"Nombre":nombre, "Tamaño": tamaño, "Ruta": ruta, "Hijos":hijos}
+
+def topTamañoArchivos(archivos):
+    listaArchivos = []
+    tamañoArchivosOrdenado = archivos.copy()
+    contador = 0
+    while contador < 10 and tamañoArchivosOrdenado != []:
+        listaArchivos.append(tamañoArchivosOrdenado.pop(tamañoArchivosOrdenado.index(max(tamañoArchivosOrdenado))))
+        contador += 1
+    return listaArchivos
+
+def topTamañoCarpetas(carpetas):
+    listaCarpetas = []
+    tamañoCarpetasOrdenado = carpetas.copy()
+    contador = 0
+    while contador < 10 and tamañoCarpetasOrdenado != []:
+        listaCarpetas.append(tamañoCarpetasOrdenado.pop(tamañoCarpetasOrdenado.index(max(tamañoCarpetasOrdenado))))
+        contador += 1
+    return listaCarpetas
+
+def topArchivos(listaArchivos):
+    archivosFinal = {}
+    for elemento in listaArchivos:
+        archivosFinal[archivos[tamañoArchivos.index(elemento)]] = obtenerTamaño(archivos[tamañoArchivos.index(elemento)])
+    return archivosFinal
+
+def topCarpetas(listaCarpetas):
+    carpetasFinal = {}
+    for elemento in listaCarpetas:
+        carpetasFinal[carpetas[tamañoCarpetas.index(elemento)]] = elemento
+    return carpetasFinal
