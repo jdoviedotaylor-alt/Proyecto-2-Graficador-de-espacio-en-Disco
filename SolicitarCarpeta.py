@@ -74,7 +74,7 @@ def graficarNodo(pantalla, fuente, nodo, x, y, ancho, nivel):
     if ancho > 70:
         texto = fuente.render(nodo["nombre"], True, (0, 0, 0))
         pantalla.blit(texto, (x + 5, y + 5))
-        tamaño = obtenerTamaño(nodo["ruta"])
+        tamaño = obtenerTamaño(nodo["ruta"]) if os.path.isfile(nodo["ruta"]) else obtenerMedidaTamaño(nodo["tamaño"])
         textoTamaño = fuente.render(tamaño, True, (0, 0, 0))
         pantalla.blit(textoTamaño, (x + 5, y + 25))
     if len(nodo["hijos"]) == 0:
@@ -102,7 +102,14 @@ def main():
     nombreCarpeta = os.path.basename(carpeta)
     if nombreCarpeta == "":
         nombreCarpeta = carpeta
-    diccionario = crearDiccionario(carpeta)
+    try:
+        diccionario = crearDiccionario(carpeta)
+    except PermissionError:
+        msgbox(msg="No se tienen permisos para acceder a la carpeta seleccionada.", title="ERROR", ok_button="Cerrar")
+        sys.exit()
+    except Exception as e:
+        msgbox(msg=f"Error al analizar la carpeta: {e}", title="ERROR", ok_button="Cerrar")
+        sys.exit()
     pygame.init()
     ANCHO = 1600
     ALTO = 800

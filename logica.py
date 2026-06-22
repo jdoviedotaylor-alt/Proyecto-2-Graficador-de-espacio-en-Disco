@@ -33,6 +33,29 @@ def obtenerTamaño(rutaArchivo):
         tamaño /= 1024**4
         return f"{tamaño:.2f} TB"
     
+def obtenerMedidaTamaño(tamaño):
+    """
+    Esta funcion recibe un tamaño en bytes y lo convierte a la unidad mas adecuada
+    Entradas: Un valor numérico en bytes
+    Salidas: String con el tamaño en la unidad mas adecuada
+    Restricciones: tamaño debe ser un valor numérico positivo
+    """
+    if type(tamaño) not in (int, float):
+        raise Exception("El tamaño debe ser un valor numérico")
+    if tamaño < 0:
+        raise Exception("El tamaño debe ser positivo")
+    tamaño = float(tamaño)
+    if tamaño < 1024:
+        return f"{tamaño:.2f} B"
+    elif tamaño < 1024**2:
+        return f"{tamaño / 1024:.2f} KB"
+    elif tamaño < 1024**3:
+        return f"{tamaño / 1024**2:.2f} MB"
+    elif tamaño < 1024**4:
+        return f"{tamaño / 1024**3:.2f} GB"
+    else:
+        return f"{tamaño / 1024**4:.2f} TB"
+
 
 def informacionCarpeta(ruta):
     """ 
@@ -68,7 +91,7 @@ def informacionCarpetaAux(ruta):
         return {"nombre":nombre, "tamaño": tamaño, "ruta": ruta, "hijos":hijos}
     elementos = os.listdir(ruta)
     carpetas.append(ruta)
-    tamañoCarpetas.append(len(elementos))
+    tamañoCarpetas.append(len([arc for arc in elementos if os.path.isfile(os.path.join(ruta, arc))]))
     tamaño = 0
     for elemento in elementos:
         rutaElemento = os.path.join(ruta, elemento)
@@ -126,9 +149,14 @@ def topArchivos(listaArchivos):
         raise Exception("Debe ingresar una lista.")
     if not all(type(x) in (int, float) for x in listaArchivos):
         raise Exception("Debe ingresar una lista numérica.")
+    copiaTamaño = tamañoArchivos.copy()
+    copiaArchivos = archivos.copy()
     archivosFinal = {}
     for elemento in listaArchivos:
-        archivosFinal[archivos[tamañoArchivos.index(elemento)]] = obtenerTamaño(archivos[tamañoArchivos.index(elemento)])
+        posicionArchivo = copiaTamaño.index(elemento)
+        del copiaTamaño[posicionArchivo]
+        elementoFinal = copiaArchivos.pop(posicionArchivo)
+        archivosFinal[elementoFinal] = obtenerTamaño(elementoFinal)
     return archivosFinal
 
 def topCarpetas(listaCarpetas):
@@ -142,7 +170,12 @@ def topCarpetas(listaCarpetas):
         raise Exception("Debe ingresar una lista.")
     if not all(type(x) in (int, float) for x in listaCarpetas):
         raise Exception("Debe ingresar una lista numérica.")
+    copiaTamaño = tamañoCarpetas.copy()
+    copiaCarpetas = carpetas.copy()
     carpetasFinal = {}
     for elemento in listaCarpetas:
-        carpetasFinal[carpetas[tamañoCarpetas.index(elemento)]] = elemento
+        posicionArchivo = copiaTamaño.index(elemento)
+        del copiaTamaño[posicionArchivo]
+        elementoFinal = copiaCarpetas.pop(posicionArchivo)
+        carpetasFinal[elementoFinal] = elemento
     return carpetasFinal
