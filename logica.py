@@ -5,7 +5,6 @@ tamañoArchivos = []
 carpetas = []
 tamañoCarpetas = []
 
-
 def obtenerTamaño(rutaArchivo):
     """Esta es una funcion que va a recibir una ruta de un archivo y va a devolver el tamaño del archivo
        en la unidad de medida mas adecuada
@@ -55,7 +54,6 @@ def obtenerMedidaTamaño(tamaño):
         return f"{tamaño / 1024**3:.2f} GB"
     else:
         return f"{tamaño / 1024**4:.2f} TB"
-
 
 def informacionCarpeta(ruta):
     """ 
